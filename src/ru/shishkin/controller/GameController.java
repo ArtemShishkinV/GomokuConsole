@@ -16,6 +16,7 @@ public class GameController {
         System.out.println(game.start());
         String play = game.getBoardObj().toString();
         while(play.equals(game.getBoardObj().toString())) {
+            System.out.print("Your turn: ");
             play = game.play(game.getTurn(scanner));
             System.out.println(play);
         }

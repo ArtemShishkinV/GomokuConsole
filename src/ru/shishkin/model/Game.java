@@ -1,18 +1,11 @@
 package ru.shishkin.model;
 
 import java.util.Scanner;
-
-
-/**
- * Record the black stone as 1 on board, and -1 for the white stone
- */
 public class Game {
     private static final int NUM_ROW = 7;
     private static final int NUM_COLUMN = 7;
 
     private Board boardObj;
-
-    private int[][] board;
 
     private Player player;
 
@@ -22,7 +15,6 @@ public class Game {
 
     public Game() {
         boardObj = new Board(NUM_ROW, NUM_COLUMN);
-        this.board = boardObj.getBoard();
     }
 
     public static int getNumRow() {
@@ -49,18 +41,14 @@ public class Game {
         return playerFirst;
     }
 
-    /**
-     * Initializes the game and flips a coin
-     * If heads, player plays first
-     * otherwise bot plays first
-     */
     public String start() {
         StringBuilder stringBuilder = new StringBuilder();
 
         stringBuilder.append(determineGoesFirst());
-
         this.bot = new Bot((playerFirst ? -1 : 1), boardObj);
         this.player = new Player((playerFirst ? 1 : -1), boardObj);
+
+        if(!playerFirst) bot.play();
 
         stringBuilder.append(boardObj);
 
@@ -68,33 +56,29 @@ public class Game {
     }
 
     public String play(Tuple tuple) {
+        return turnPlayer(tuple) +
+                turnBot() + getBoardObj();
+    }
+
+    private String turnPlayer(Tuple tuple) {
         StringBuilder stringBuilder = new StringBuilder();
-        // player place the stone..
         player.putStone(tuple.row_co, tuple.col_co, player.getStoneColour());
-        if (GameChecker.ifWin(this.boardObj)) {
-            stringBuilder.append("You Win!").append("\n");
-            stringBuilder.append(boardObj);
-            return stringBuilder.toString();
-        } else if (GameChecker.isFull(this.boardObj)) {
-            stringBuilder.append("Board Full..").append("\n");
-            stringBuilder.append(boardObj);
-            return stringBuilder.toString();
-        }
-        // bot place the stone..
-        bot.play();
-        if (GameChecker.ifWin(this.boardObj)) {
-            stringBuilder.append("AI win!").append("\n");
-            stringBuilder.append(boardObj);
-            return stringBuilder.toString();
-        } else if (GameChecker.isFull(this.boardObj)) {
-            stringBuilder.append("Board Full..").append("\n");
-            stringBuilder.append(boardObj);
-            return stringBuilder.toString();
-        }
-        stringBuilder.append(boardObj.toString());
+        stringBuilder.append(getResultGameChecker("You"));
         return stringBuilder.toString();
     }
 
+    private String turnBot() {
+        StringBuilder stringBuilder = new StringBuilder();
+        bot.play();
+        stringBuilder.append(getResultGameChecker("AI"));
+        return stringBuilder.toString();
+    }
+
+    private String getResultGameChecker(String player) {
+        if (GameChecker.ifWin(this.boardObj)) return GameChecker.getWinMessage(this, player);
+        if (GameChecker.isFull(this.boardObj)) return GameChecker.getFullMessage(this);
+        return "";
+    }
 
     public Tuple getTurn(Scanner scanner) {
         return new Tuple(scanner.nextInt(), scanner.nextInt());

@@ -3,6 +3,14 @@ package ru.shishkin.model;
 public class GameChecker {
     private GameChecker() {};
 
+    public static String getWinMessage(Game game, String player) {
+        return "\n" + player + " win!" + "\n";
+    }
+
+    public static String getFullMessage(Game game) {
+        return "\n" + "Board Full.." + "\n";
+    }
+
     public static boolean isFull(Board board) {
         for (int[] arr : board.getBoard()) {
             for (int value : arr) {
